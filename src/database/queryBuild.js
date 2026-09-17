@@ -11,7 +11,7 @@ class QueryOptions {
 
 class QueryBuilder {
     constructor(table) {
-        this.table = sanitizeIdentifier(table);
+        this.table = sanitizeIdentifier(table)
         this.fields = "*"
         this.wheres = []
         this.values = []
@@ -20,9 +20,9 @@ class QueryBuilder {
     }
 
     where(field, value) {
-        this.wheres.push(`${sanitizeIdentifier(field)} = ?`);
-        this.values.push(value);
-        return this;
+        this.wheres.push(`${sanitizeIdentifier(field)} = ?`)
+        this.values.push(value)
+        return this
     }
 
     select(...fields) {
@@ -33,9 +33,9 @@ class QueryBuilder {
 
     buildWhere() {
         if (this.wheres.length === 0)
-            return "";
+            return ""
 
-        return ` WHERE ${this.wheres.join(" AND ")}`;
+        return ` WHERE ${this.wheres.join(" AND ")}`
     }
 
 

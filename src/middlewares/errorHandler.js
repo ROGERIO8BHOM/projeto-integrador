@@ -1,6 +1,6 @@
 function errorHandler(err, req, res, next) {
-    console.error('[ERRO]:', err.stack);
-    const statusCode = err.statusCode || 500;
+    console.error('[ERRO]:', err.stack)
+    const statusCode = err.statusCode || 500
 
     const message =
         err.isOperational

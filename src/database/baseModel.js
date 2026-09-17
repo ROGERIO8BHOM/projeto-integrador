@@ -1,8 +1,8 @@
-const { QueryBuilder } = require("./queryBuild");
+const { QueryBuilder } = require("./queryBuild")
 
 class DataBaseModel {
-    static table = null;
-    static primaryKey = "id";
+    static table = null
+    static primaryKey = "id"
     static selectableAllowedFields = []
     static insertAllowedFields = []
     static updateAllowedFields = []
@@ -10,12 +10,12 @@ class DataBaseModel {
     static validateFields(data, allowedFields) {
         const invalidFields = Object.keys(data).filter(
             field => !allowedFields.includes(field)
-        );
+        )
 
         if (invalidFields.length > 0)
             throw new Error(
                 `Campos não permitidos: ${invalidFields.join(", ")}`
-            );
+            )
 
         return Object.fromEntries(
             allowedFields
@@ -24,7 +24,7 @@ class DataBaseModel {
                     data[field] !== undefined
                 )
                 .map(field => [field, data[field]])
-        );
+        )
     }
 
     static validateSelectFields(fields) {
@@ -33,18 +33,18 @@ class DataBaseModel {
 
         const invalidFields = fields.filter(
             field => !this.selectableAllowedFields.includes(field)
-        );
+        )
 
         if (invalidFields.length > 0)
             throw new Error(
                 `Campos não permitidos: ${invalidFields.join(", ")}`
-            );
+            )
 
-        return fields;
+        return fields
     }
 
     static query() {
-        return new QueryBuilder(this.table);
+        return new QueryBuilder(this.table)
     }
 
     static select(...fields) {
@@ -52,7 +52,7 @@ class DataBaseModel {
     }
 
     static where(field, value) {
-        return this.query().where(field, value);
+        return this.query().where(field, value)
     }
 
     static async all(...fields) {

@@ -48,7 +48,6 @@ class CategoriasService {
 
     static async delete(id) {
         const deletedRows = await CategoriasModel.delete(id)
-        console.log(deletedRows);
         
         if (deletedRows === 0)
             throw new AppError("Categoria não encontrada", 404)
