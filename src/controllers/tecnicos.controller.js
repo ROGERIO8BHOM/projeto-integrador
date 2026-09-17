@@ -4,8 +4,13 @@ const AppError = require("../errors/appError")
 
 class TecnicosController {
     static async getAll(req, res) {
-        const tecnicos = await TecnicosService.getAll()
-        res.json(tecnicos)
+        const { email } = req.query
+
+        const resposta = email
+            ? await TecnicosService.findByEmail(email)
+            : await TecnicosService.getAll()
+
+        res.json(resposta)
     }
 
     static async add(req, res) {

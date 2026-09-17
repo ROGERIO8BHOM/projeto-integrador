@@ -3,7 +3,7 @@ const { isValidEmail } = require("../utils/validators")
 const AppError = require("../errors/appError")
 
 class TecnicosService {
-    static #parseTecnico({ nome, email }) {
+    static #parseTecnico({ nome, email } = {}) {
         const _nome = typeof nome === "string"
             ? nome.trim()
             : ""
@@ -22,11 +22,11 @@ class TecnicosService {
     }
 
     static async getAll() {
-        return TecnicosModel.getAll()
+        return TecnicosModel.all()
     }
 
     static async findById(id) {
-        const tecnico = await TecnicosModel.findById(id)
+        const tecnico = await TecnicosModel.find(id)
 
         if (!tecnico)
             throw new AppError("Não foi possível encontrar o tecnico pelo ID", 404)
