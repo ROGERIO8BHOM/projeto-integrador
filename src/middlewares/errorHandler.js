@@ -12,4 +12,4 @@ function errorHandler(err, req, res, next) {
         status: statusCode
     })
 }
-module.exports = errorHandler;
+module.exports = errorHandler

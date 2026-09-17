@@ -48,7 +48,7 @@ class DataBaseModel {
     }
 
     static select(...fields) {
-        return this.query().select(...this.validateSelectFields(fields));
+        return this.query().select(...this.validateSelectFields(fields))
     }
 
     static where(field, value) {
@@ -66,21 +66,21 @@ class DataBaseModel {
     static async find(key, ...fields) {
         const query = fields.length > 0
             ? this.select(...this.validateSelectFields(fields))
-            : this.query();
+            : this.query()
 
         return query
             .where(this.primaryKey, key)
-            .getFirst();
+            .getFirst()
     }
 
     static async findAll(key, ...fields) {
         const query = fields.length > 0
             ? this.select(...this.validateSelectFields(fields))
-            : this.query();
+            : this.query()
 
         return query
             .where(this.primaryKey, key)
-            .get();
+            .get()
     }
 
     static async add(data) {
@@ -104,4 +104,4 @@ class DataBaseModel {
     }
 }
 
-module.exports = DataBaseModel;
+module.exports = DataBaseModel

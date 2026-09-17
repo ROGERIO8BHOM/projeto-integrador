@@ -62,7 +62,7 @@ class QueryBuilder {
         this.limit(1)
 
         const rows = await this.get()
-        return rows[0] ?? null;
+        return rows[0] ?? null
     }
 
     async insert(data = {}) {
