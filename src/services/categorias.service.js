@@ -2,7 +2,7 @@ const CategoriasModel = require("../models/categorias.model")
 const AppError = require('../errors/appError')
 
 class CategoriasService {
-    static #parseCategoria({ nome, descricao }) {
+    static #parseCategoria({ nome, descricao } = {}) {
         const _nome = typeof nome === "string"
             ? nome.trim()
             : ""
@@ -18,11 +18,11 @@ class CategoriasService {
     }
 
     static async getAll() {
-        return CategoriasModel.getAll()
+        return CategoriasModel.all()
     }
 
     static async findById(id) {
-        const categoria = await CategoriasModel.findById(id)
+        const categoria = await CategoriasModel.find(id)
 
         if (!categoria)
             throw new AppError("Categoria não encontrada", 404)
@@ -48,7 +48,8 @@ class CategoriasService {
 
     static async delete(id) {
         const deletedRows = await CategoriasModel.delete(id)
-
+        console.log(deletedRows);
+        
         if (deletedRows === 0)
             throw new AppError("Categoria não encontrada", 404)
 
