@@ -1,5 +1,6 @@
 const { sanitizeIdentifier } = require("../utils/validators")
 const pool = require("../config/database")
+const AppError = require("../errors/appError")
 
 class QueryOptions {
     constructor(data = {}) {
@@ -69,7 +70,7 @@ class QueryBuilder {
         const options = new QueryOptions(data)
 
         if (options.fields.length === 0)
-            throw new Error("Nenhum dado informado")
+            throw new AppError("Nenhum dado informado")
 
         const sql = ` INSERT INTO ${this.table} (${options.fields.join(", ")})
             VALUES (${options.placeholders})`
@@ -83,10 +84,10 @@ class QueryBuilder {
         const options = new QueryOptions(data)
 
         if (options.fields.length === 0)
-            throw new Error("Nenhum dado informado")
+            throw new AppError("Nenhum dado informado")
         const where = this.buildWhere()
         if (!where)
-            throw new Error("WHERE esperado", 500)
+            throw new AppError("WHERE esperado", 500)
 
         const set = options.fields
             .map(field => `${field} = ?`)
@@ -108,7 +109,7 @@ class QueryBuilder {
     async delete() {
         const where = this.buildWhere()
         if (!where)
-            throw new Error("WHERE esperado", 500)
+            throw new AppError("WHERE esperado", 500)
 
         const sql = `DELETE FROM ${this.table}${where}`
 

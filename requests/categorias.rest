@@ -1,0 +1,5 @@
+@baseUrl = http://localhost:3000
+
+### Sprint 1: listar categorias — esperado: 200 e um array JSON
+GET {{baseUrl}}/categorias
+Accept: application/json

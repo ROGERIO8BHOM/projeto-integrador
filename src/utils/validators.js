@@ -6,7 +6,7 @@ const parseID = (id) => {
 }
 
 const isValidEmail = (email) => {
-  if (!email)
+  if (typeof email !== "string")
     return false
 
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -26,4 +26,4 @@ module.exports = {
   parseID,
   isValidEmail,
   sanitizeIdentifier
-}
+} 

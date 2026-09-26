@@ -1,0 +1,147 @@
+@baseUrl = http://localhost:3000
+@emailTeste = sprint2.rest.teste@example.com
+@emailAusente = sprint2.rest.ausente@example.com
+@idTeste = 4
+@idInexistente = 2147483647
+
+### 1. Listar — esperado: 200 e array JSON
+GET {{baseUrl}}/solicitantes
+
+### 2. Cadastrar — esperado: 201; copie o ID retornado para idTeste
+POST {{baseUrl}}/solicitantes
+Content-Type: application/json
+
+{
+  "nome": "Solicitante REST Teste",
+  "email": "{{emailTeste}}",
+  "setor": "TI"
+}
+
+### 3. Consultar por ID — esperado: 200 e o registro criado
+GET {{baseUrl}}/solicitantes/{{idTeste}}
+
+### 4. Consultar por email — esperado: 200 e o mesmo registro
+GET {{baseUrl}}/solicitantes?email={{emailTeste}}
+
+### 5. Email duplicado — esperado: 409
+POST {{baseUrl}}/solicitantes
+Content-Type: application/json
+
+{
+  "nome": "Duplicado REST",
+  "email": "{{emailTeste}}",
+  "setor": "TI"
+}
+
+### 6. Atualizar — esperado: 200
+PUT {{baseUrl}}/solicitantes/{{idTeste}}
+Content-Type: application/json
+
+{
+  "nome": "Solicitante REST Atualizado",
+  "email": "{{emailTeste}}",
+  "setor": "Suporte"
+}
+
+### 7. Conferir atualização — esperado: 200, nome atualizado e setor Suporte
+GET {{baseUrl}}/solicitantes/{{idTeste}}
+
+### 8. Nome obrigatório — esperado: 400
+POST {{baseUrl}}/solicitantes
+Content-Type: application/json
+
+{
+  "email": "{{emailAusente}}",
+  "setor": "TI"
+}
+
+### 9. Email obrigatório — esperado: 400
+POST {{baseUrl}}/solicitantes
+Content-Type: application/json
+
+{
+  "nome": "Teste",
+  "setor": "TI"
+}
+
+### 10. Setor obrigatório — esperado: 400
+POST {{baseUrl}}/solicitantes
+Content-Type: application/json
+
+{
+  "nome": "Teste",
+  "email": "{{emailAusente}}"
+}
+
+### 11. Email inválido — esperado: 400
+POST {{baseUrl}}/solicitantes
+Content-Type: application/json
+
+{
+  "nome": "Teste",
+  "email": "invalido",
+  "setor": "TI"
+}
+
+### 12. Nome em branco — esperado: 400
+POST {{baseUrl}}/solicitantes
+Content-Type: application/json
+
+{
+  "nome": "   ",
+  "email": "{{emailAusente}}",
+  "setor": "TI"
+}
+
+### 13. Atualização sem campos obrigatórios — esperado: 400
+PUT {{baseUrl}}/solicitantes/{{idTeste}}
+Content-Type: application/json
+
+{}
+
+### 14. ID inválido na consulta — esperado: 400
+GET {{baseUrl}}/solicitantes/abc
+
+### 15. ID inválido na atualização — esperado: 400
+PUT {{baseUrl}}/solicitantes/abc
+Content-Type: application/json
+
+{
+  "nome": "Teste",
+  "email": "{{emailAusente}}",
+  "setor": "TI"
+}
+
+### 16. ID inválido na exclusão — esperado: 400
+DELETE {{baseUrl}}/solicitantes/abc
+
+### 17. Consulta inexistente — esperado: 404
+GET {{baseUrl}}/solicitantes/{{idInexistente}}
+
+### 18. Atualização inexistente — esperado: 404
+PUT {{baseUrl}}/solicitantes/{{idInexistente}}
+Content-Type: application/json
+
+{
+  "nome": "Teste",
+  "email": "{{emailAusente}}",
+  "setor": "TI"
+}
+
+### 19. Email repetido na query — esperado: 400, nunca 500
+GET {{baseUrl}}/solicitantes?email=a&email=b
+
+### 20. Email inválido na query — esperado: 400
+GET {{baseUrl}}/solicitantes?email=invalido
+
+### 21. Email inexistente — esperado: 404
+GET {{baseUrl}}/solicitantes?email={{emailAusente}}
+
+### 22. Excluir o registro de teste — esperado: 200
+DELETE {{baseUrl}}/solicitantes/{{idTeste}}
+
+### 23. Consultar após excluir — esperado: 404
+GET {{baseUrl}}/solicitantes/{{idTeste}}
+
+### 24. Excluir novamente — esperado: 404
+DELETE {{baseUrl}}/solicitantes/{{idTeste}}

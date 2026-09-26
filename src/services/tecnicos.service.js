@@ -21,7 +21,7 @@ class TecnicosService {
         return { nome: _nome, email: _email }
     }
 
-    static async getAll() {
+    static async all() {
         return TecnicosModel.all()
     }
 
@@ -52,7 +52,7 @@ class TecnicosService {
         if (await TecnicosModel.findByEmail(_dadosTecnico.email))
             throw new AppError("Email duplicado", 409)
         
-        return TecnicosModel.add(_dadosTecnico)
+        return await TecnicosModel.add(_dadosTecnico)
     }
 
     static async update(id, dadosTecnico) {

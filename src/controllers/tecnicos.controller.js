@@ -3,12 +3,12 @@ const { parseID } = require("../utils/validators")
 const AppError = require("../errors/appError")
 
 class TecnicosController {
-    static async getAll(req, res) {
+    static async get(req, res) {
         const { email } = req.query
 
         const resposta = email
             ? await TecnicosService.findByEmail(email)
-            : await TecnicosService.getAll()
+            : await TecnicosService.all()
 
         res.json(resposta)
     }

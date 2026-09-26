@@ -1,0 +1,11 @@
+@baseUrl = http://localhost:3000
+
+### Sprint 1: listar técnicos — esperado: 200 e um array JSON
+GET {{baseUrl}}/tecnicos
+Accept: application/json
+
+### Filtro adicional: email inválido — esperado: 400
+GET {{baseUrl}}/tecnicos?email=invalido
+
+### Regressão: email repetido na query — esperado: 400
+GET {{baseUrl}}/tecnicos?email=a&email=b

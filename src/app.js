@@ -13,8 +13,10 @@ app.use(express.json())
 // Rotas
 const categoriasRoutes = require("./routes/categorias.routes")
 const tecnicosRoutes = require("./routes/tecnicos.routes")
+const solicitantesRoutes = require("./routes/solicitantes.routes")
 app.use("/categorias", categoriasRoutes)
 app.use("/tecnicos", tecnicosRoutes)
+app.use("/solicitantes", solicitantesRoutes)
 
 //Error Handler
 app.use(errorHandler)
