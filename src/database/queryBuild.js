@@ -10,6 +10,32 @@ class QueryOptions {
     }
 }
 
+class QueryJoin {
+    constructor(table, comparators = [], ...fields) {
+        this.table = sanitizeIdentifier(table);
+        this.comparators = comparators;
+        this.fields = fields;
+    }
+
+    buildSelect() {
+        return this.fields.map(field =>
+            `${this.table}.${sanitizeIdentifier(field)}`
+        ).join(", ")
+    }
+
+    buildJoin(baseTable) {
+        // table1.field1 = table2.field2 AND ...
+        const conditions = this.comparators.map(([field1, field2]) =>
+            `${baseTable}.${sanitizeIdentifier(field1)} = ${this.table}.${sanitizeIdentifier(field2)}`
+        ).join(" AND ");
+
+        if (!conditions)
+            throw new AppError("Comparadores esperados")
+
+        return ` JOIN ${this.table} ON ${conditions}`
+    }
+}
+
 class QueryBuilder {
     constructor(table) {
         this.table = sanitizeIdentifier(table)
@@ -18,6 +44,16 @@ class QueryBuilder {
         this.values = []
         this.limitOp = ""
         this.orderByValue = null
+        this.joins = []
+    }
+
+    // Comparators = [..., [field1, field2], ...]
+    join(table, comparators, ...fields) {
+        this.joins.push(
+            new QueryJoin(table, comparators, ...fields)
+        )
+
+        return this
     }
 
     where(field, value) {
@@ -50,13 +86,27 @@ class QueryBuilder {
     }
 
     async get() {
-        const sql = `SELECT ${this.fields}
-                 FROM ${this.table}`
-            + this.buildWhere() + this.limitOp
+        const fields = this.fields === "*"
+            ? `${this.table}.*`
+            : this.fields.split(",")
+                .map(f => `${this.table}.${f.trim()}`)
+                .join(", ");
 
-        const [rows] = await pool.execute(sql, this.values)
+        const joinFields = this.joins
+            .map(join => join.buildSelect())
+            .filter(Boolean);
 
-        return rows
+        const joins = this.joins
+            .map(join => join.buildJoin(this.table))
+            .join("");
+
+        const sql = `SELECT ${[fields, ...joinFields].join(", ")}
+                 FROM ${this.table}${joins}`
+            + this.buildWhere() + this.limitOp;
+
+        const [rows] = await pool.execute(sql, this.values);
+
+        return rows;
     }
 
     async getFirst() {
@@ -95,7 +145,7 @@ class QueryBuilder {
 
         const sql =
             `UPDATE ${this.table} SET ${set}${where}`
-            
+
         const values = [
             ...options.values,
             ...this.values
