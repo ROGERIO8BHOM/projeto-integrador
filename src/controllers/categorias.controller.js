@@ -11,7 +11,7 @@ class CategoriasController {
     static async add(req, res) {
         const dados = req.body
         const id = await CategoriasService.add(dados)
-        res.json({ message: `Categoria adicionada com sucesso - ID: ${id}` })
+        res.status(201).json({ message: `Categoria adicionada com sucesso - ID: ${id}` })
     }
 
     static async update(req, res) {

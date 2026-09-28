@@ -11,28 +11,34 @@ class QueryOptions {
 }
 
 class QueryJoin {
-    constructor(table, comparators = [], ...fields) {
-        this.table = sanitizeIdentifier(table);
-        this.comparators = comparators;
-        this.fields = fields;
+    constructor(table, comparators = [], fields = [], type = "JOIN") {
+        this.table = sanitizeIdentifier(table)
+        this.comparators = comparators
+        this.fields = fields
+        this.type = type
     }
 
     buildSelect() {
-        return this.fields.map(field =>
-            `${this.table}.${sanitizeIdentifier(field)}`
-        ).join(", ")
+        return this.fields.map(field => {
+            if (Array.isArray(field)) {
+                const [name, alias] = field
+                return `${this.table}.${sanitizeIdentifier(name)} AS ${sanitizeIdentifier(alias)}`
+            }
+
+            return `${this.table}.${sanitizeIdentifier(field)}`
+        }).join(", ")
     }
 
     buildJoin(baseTable) {
         // table1.field1 = table2.field2 AND ...
         const conditions = this.comparators.map(([field1, field2]) =>
             `${baseTable}.${sanitizeIdentifier(field1)} = ${this.table}.${sanitizeIdentifier(field2)}`
-        ).join(" AND ");
+        ).join(" AND ")
 
         if (!conditions)
             throw new AppError("Comparadores esperados")
 
-        return ` JOIN ${this.table} ON ${conditions}`
+        return ` ${this.type} ${this.table} ON ${conditions}`
     }
 }
 
@@ -50,14 +56,22 @@ class QueryBuilder {
     // Comparators = [..., [field1, field2], ...]
     join(table, comparators, ...fields) {
         this.joins.push(
-            new QueryJoin(table, comparators, ...fields)
+            new QueryJoin(table, comparators, fields)
+        )
+
+        return this
+    }
+
+    leftJoin(table, comparators, ...fields) {
+        this.joins.push(
+            new QueryJoin(table, comparators, fields, "LEFT JOIN")
         )
 
         return this
     }
 
     where(field, value) {
-        this.wheres.push(`${sanitizeIdentifier(field)} = ?`)
+        this.wheres.push(`${this.table}.${sanitizeIdentifier(field)} = ?`)
         this.values.push(value)
         return this
     }
@@ -71,7 +85,6 @@ class QueryBuilder {
     buildWhere() {
         if (this.wheres.length === 0)
             return ""
-
         return ` WHERE ${this.wheres.join(" AND ")}`
     }
 
@@ -94,17 +107,17 @@ class QueryBuilder {
 
         const joinFields = this.joins
             .map(join => join.buildSelect())
-            .filter(Boolean);
+            .filter(Boolean)
 
         const joins = this.joins
             .map(join => join.buildJoin(this.table))
-            .join("");
+            .join("")
 
         const sql = `SELECT ${[fields, ...joinFields].join(", ")}
                  FROM ${this.table}${joins}`
-            + this.buildWhere() + this.limitOp;
+            + this.buildWhere() + this.limitOp
 
-        const [rows] = await pool.execute(sql, this.values);
+        const [rows] = await pool.execute(sql, this.values)
 
         return rows;
     }

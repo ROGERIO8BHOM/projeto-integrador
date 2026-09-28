@@ -16,7 +16,7 @@ class TecnicosController {
     static async add(req, res) {
         const dados = req.body
         const id = await TecnicosService.add(dados)
-        res.json({ message: `Tecnico adicionado com sucesso - ID: ${id}` })
+        res.status(201).json({ message: `Tecnico adicionado com sucesso - ID: ${id}` })
     }
 
     static async update(req, res) {

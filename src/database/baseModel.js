@@ -1,3 +1,4 @@
+const AppError = require("../errors/appError")
 const { QueryBuilder } = require("./queryBuild")
 
 class DataBaseModel {
@@ -13,9 +14,7 @@ class DataBaseModel {
         )
 
         if (invalidFields.length > 0)
-            throw new Error(
-                `Campos não permitidos: ${invalidFields.join(", ")}`
-            )
+            throw new AppError(`Campos não permitidos: ${invalidFields.join(", ")}`, 400)
 
         return Object.fromEntries(
             allowedFields
@@ -36,9 +35,7 @@ class DataBaseModel {
         )
 
         if (invalidFields.length > 0)
-            throw new Error(
-                `Campos não permitidos: ${invalidFields.join(", ")}`
-            )
+            throw new AppError(`Campos não permitidos: ${invalidFields.join(", ")}`, 400)
 
         return fields
     }
