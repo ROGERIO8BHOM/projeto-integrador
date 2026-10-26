@@ -51,6 +51,8 @@ class QueryBuilder {
         this.limitOp = ""
         this.orderByValue = null
         this.joins = []
+        this.counts = []
+        this.groupByFields = []
     }
 
     // Comparators = [..., [field1, field2], ...]
@@ -76,18 +78,41 @@ class QueryBuilder {
         return this
     }
 
+    count(field = "*", alias = "total") {
+        field = field === "*" ? "*" : `${this.table}.${sanitizeIdentifier(field)}`
+        this.counts.push(
+            `COUNT(${field}) AS ${sanitizeIdentifier(alias)}`
+        )
+        return this
+    }
+
+    groupBy(...fields) {
+        this.groupByFields.push(
+            ...fields.map(field =>
+                `${this.table}.${sanitizeIdentifier(field)}`
+            )
+        )
+
+        return this
+    }
+
     select(...fields) {
         this.fields = fields.length === 0 ? "*"
             : fields.map(sanitizeIdentifier).join(", ")
         return this
     }
 
-    buildWhere() {
+    #buildWhere() {
         if (this.wheres.length === 0)
             return ""
         return ` WHERE ${this.wheres.join(" AND ")}`
     }
 
+    #buildGroupBy() {
+        if (this.groupByFields.length === 0)
+            return ""
+        return ` GROUP BY ${this.groupByFields.join(", ")}`
+    }
 
     limit(amount) {
         if (!Number.isInteger(amount) || amount <= 0) {
@@ -113,9 +138,15 @@ class QueryBuilder {
             .map(join => join.buildJoin(this.table))
             .join("")
 
-        const sql = `SELECT ${[fields, ...joinFields].join(", ")}
+        const selectFields = [
+            fields,
+            ...joinFields,
+            ...this.counts
+        ].filter(Boolean)
+
+        const sql = `SELECT ${selectFields.join(", ")}
                  FROM ${this.table}${joins}`
-            + this.buildWhere() + this.limitOp
+            + this.#buildWhere() + this.#buildGroupBy() + this.limitOp
 
         const [rows] = await pool.execute(sql, this.values)
 
@@ -148,7 +179,7 @@ class QueryBuilder {
 
         if (options.fields.length === 0)
             throw new AppError("Nenhum dado informado")
-        const where = this.buildWhere()
+        const where = this.#buildWhere()
         if (!where)
             throw new AppError("WHERE esperado", 500)
 
@@ -170,7 +201,7 @@ class QueryBuilder {
     }
 
     async delete() {
-        const where = this.buildWhere()
+        const where = this.#buildWhere()
         if (!where)
             throw new AppError("WHERE esperado", 500)
 

@@ -19,7 +19,6 @@ app.use("/categorias", categoriasRoutes)
 app.use("/tecnicos", tecnicosRoutes)
 app.use("/solicitantes", solicitantesRoutes)
 app.use("/chamados", chamadosRoutes)
-
 //Error Handler
 app.use(errorHandler)
 

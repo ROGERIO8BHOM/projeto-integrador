@@ -1,5 +1,7 @@
 const pool = require("../config/database")
 const DataBaseModel = require("../database/baseModel")
+const { QueryBuilder } = require("../database/queryBuild")
+const AppError = require("../errors/appError")
 
 class ChamadosModel extends DataBaseModel {
     static table = "chamados"
@@ -21,13 +23,11 @@ class ChamadosModel extends DataBaseModel {
 
     static selectableAllowedFields = ["*"]
 
-    static async all(...fields) {
-        const query = fields.length > 0
-            ? this.select(...this.validateSelectFields(fields))
-            : this.query()
-
-        return query
-            .join(
+    static #buildJoin(query) {
+        if (!(query instanceof QueryBuilder))
+            throw new TypeError("'query' deve ser uma instância de QueryBuilder")
+        return query.
+            join(
                 "solicitantes",
                 [["solicitante_id", "id"]],
                 ["nome", "solicitante_nome"], "setor"
@@ -42,7 +42,6 @@ class ChamadosModel extends DataBaseModel {
                 [["tecnico_id", "id"]],
                 ["nome", "tecnico_nome"]
             )
-            .get()
     }
 
     static async find(key, ...fields) {
@@ -50,24 +49,21 @@ class ChamadosModel extends DataBaseModel {
             ? this.select(...this.validateSelectFields(fields))
             : this.query()
 
-        return query
-            .join(
-                "solicitantes",
-                [["solicitante_id", "id"]],
-                ["nome", "solicitante_nome"], "setor"
-            )
-            .join(
-                "categorias",
-                [["categoria_id", "id"]],
-                ["nome", "categoria_nome"]
-            )
-            .leftJoin(
-                "tecnicos",
-                [["tecnico_id", "id"]],
-                ["nome", "tecnico_nome"]
-            )
+        return this.#buildJoin(query)
             .where(this.primaryKey, key)
             .getFirst()
+    }
+
+    static async findByFilters({ status, prioridade } = {}) {
+        const query = this.#buildJoin(this.query())
+
+        if (status !== undefined)
+            query.where("status", status)
+
+        if (prioridade !== undefined)
+            query.where("prioridade", prioridade)
+
+        return query.get()
     }
 
 }

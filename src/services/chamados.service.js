@@ -3,7 +3,8 @@ const SolicitanteService = require("./solicitantes.service")
 const TecnicoService = require("./tecnicos.service")
 const ChamadosModel = require("../models/chamados.model")
 const AppError = require('../errors/appError')
-const { parseID } = require("../utils/validators")
+const { parseID, isValidPrioridade, isValidStatus } = require("../utils/validators")
+const { PRIORIDADES, STATUS } = require("../constants/chamado.constants")
 
 class ChamadosService {
     static #parseChamado(dados = {}, partial = false) {
@@ -11,12 +12,12 @@ class ChamadosService {
             throw new AppError("Dados inválidos")
 
         if ((!partial || dados.prioridade !== undefined) &&
-            !["BAIXA", "MEDIA", "ALTA"].includes(dados.prioridade))
-            throw new AppError("Prioridade deve ser BAIXA, MEDIA ou ALTA")
+            !isValidPrioridade(dados.prioridade))
+            throw new AppError(`Prioridade deve ser ${Object.values(PRIORIDADES).join(", ")}`)
 
         if (dados.status !== undefined &&
-            !["ABERTO", "EM_ATENDIMENTO", "CONCLUIDO"].includes(dados.status))
-            throw new AppError("Status deve ser ABERTO, EM_ATENDIMENTO ou CONCLUIDO")
+            !isValidStatus(dados.status))
+            throw new AppError(`Status deve ser ${Object.values(STATUS).join(", ")}`)
 
         if (partial)
             return dados
@@ -28,6 +29,9 @@ class ChamadosService {
         if (!dados.titulo)
             throw new AppError("Título necessário")
 
+        if (dados.titulo.length > 150)
+            throw new AppError("Título deve ter no máximo 150 caracteres", 400)
+
         dados.descricao = typeof dados.descricao === "string"
             ? dados.descricao.trim()
             : ""
@@ -37,8 +41,14 @@ class ChamadosService {
         return dados
     }
 
-    static async getAll() {
-        return ChamadosModel.all()
+    static async getAll({ status, prioridade } = {}) {
+        if (status !== undefined && !isValidStatus(status))
+            throw new AppError("Status inválido", 400)
+
+        if (prioridade !== undefined && !isValidPrioridade(prioridade))
+            throw new AppError("Prioridade inválida", 400)
+
+        return ChamadosModel.findByFilters({ status, prioridade })
     }
 
     static async find(id) {
@@ -50,18 +60,45 @@ class ChamadosService {
         return chamado
     }
 
+    static async findByStatus(status) {
+        if (!isValidStatus(status))
+            throw new AppError(
+                `Status deve ser ${Object.values(STATUS).join(", ")}`,
+                400
+            )
+
+        return ChamadosModel.findByStatus(status)
+    }
+
+    static async findByPrioridade(prioridade) {
+        if (!isValidPrioridade(prioridade))
+            throw new AppError(
+                `Prioridade deve ser ${Object.values(PRIORIDADES).join(", ")}`,
+                400
+            )
+
+        return ChamadosModel.findByPrioridade(prioridade)
+    }
+
     static async add(dadosChamado) {
         const _dadosChamado = ChamadosService.#parseChamado(dadosChamado)
-        if (!_dadosChamado.solicitante_id || !parseID(_dadosChamado.solicitante_id))
+        const solicitanteId = parseID(_dadosChamado.solicitante_id)
+        const categoriaId = parseID(_dadosChamado.categoria_id)
+
+        if (solicitanteId === null)
             throw new AppError("Solicitante é obrigatório ou está inválido", 400)
 
-        if (!_dadosChamado.categoria_id || !parseID(_dadosChamado.categoria_id))
+        if (categoriaId === null)
             throw new AppError("Categoria é obrigatória ou está inválida", 400)
 
-        await SolicitanteService.find(_dadosChamado.solicitante_id)
-        await CategoriaService.findById(_dadosChamado.categoria_id)
+        await SolicitanteService.find(solicitanteId)
+        await CategoriaService.findById(categoriaId)
 
-        return ChamadosModel.add(_dadosChamado)
+        return ChamadosModel.add({
+            ..._dadosChamado,
+            solicitante_id: solicitanteId,
+            categoria_id: categoriaId
+        })
     }
 
     static async update(id, dadosChamado) {
@@ -71,7 +108,7 @@ class ChamadosService {
 
         if (!chamado)
             throw new AppError("Chamado não encontrado", 404)
-        
+
         if (_dadosChamado.solucao !== undefined && _dadosChamado.solucao !== null) {
             if (typeof _dadosChamado.solucao !== "string")
                 throw new AppError("A solução deve ser um texto", 400)
@@ -105,10 +142,10 @@ class ChamadosService {
             ? _dadosChamado.solucao
             : chamado.solucao
 
-        if (statusFinal === "EM_ATENDIMENTO" && !tecnicoFinal)
+        if (statusFinal === STATUS.EM_ATENDIMENTO && !tecnicoFinal)
             throw new AppError("É necessário atribuir um técnico para iniciar o atendimento", 400)
 
-        if (statusFinal === "CONCLUIDO" && (typeof solucaoFinal !== "string" || !solucaoFinal.trim()))
+        if (statusFinal === STATUS.CONCLUIDO && (typeof solucaoFinal !== "string" || !solucaoFinal.trim()))
             throw new AppError("É necessário informar uma solução para concluir o chamado", 400)
 
         const updatedRows = await ChamadosModel.update(id, _dadosChamado)

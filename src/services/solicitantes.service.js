@@ -11,6 +11,9 @@ class SolicitanteService {
         if (!_nome)
             throw new AppError('Nome necessário', 400)
 
+        if (_nome.length > 150)
+            throw new AppError("Nome deve ter no máximo 150 caracteres", 400)
+
         const _email = typeof email === "string"
             ? email.trim().toLowerCase()
             : ""
@@ -19,17 +22,17 @@ class SolicitanteService {
             throw new AppError("Email Inválido", 400)
 
         const _setor = typeof setor === "string" ? setor.trim() : ""
-        
+
         if (!_setor)
             throw new AppError("Setor inválido", 400)
-        
-        return { nome: _nome, email: _email, setor: _setor}
+
+        return { nome: _nome, email: _email, setor: _setor }
     }
 
     static async all() {
         return await SolicitantesModel.all()
     }
-    
+
     static async find(id) {
         const solicitante = await SolicitantesModel.find(id)
         if (!solicitante)
@@ -51,10 +54,10 @@ class SolicitanteService {
 
     static async add(dadosSolicitante) {
         const _dadosSolicitante = SolicitanteService.#parseSolicitante(dadosSolicitante)
-        
+
         if (await SolicitantesModel.findByEmail(_dadosSolicitante.email))
             throw new AppError("Email duplicado", 409)
-        
+
         return await SolicitantesModel.add(_dadosSolicitante)
     }
 

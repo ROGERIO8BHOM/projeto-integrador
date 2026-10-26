@@ -1,8 +1,21 @@
+const { PRIORIDADES, STATUS } = require("../constants/chamado.constants")
+
+const prioridadesValidas = Object.values(PRIORIDADES)
+const statusValidos = Object.values(STATUS)
+
 const parseID = (id) => {
-  const _id = Number(id)
-  if (!Number.isInteger(_id) || _id < 1)
+  if (typeof id !== "string" && typeof id !== "number")
     return null
-  return _id
+
+  if (typeof id === "string" && !/^\d+$/.test(id.trim()))
+    return null
+
+  const parsed = Number(id)
+
+  if (!Number.isSafeInteger(parsed) || parsed < 1)
+    return null
+
+  return parsed
 }
 
 const isValidEmail = (email) => {
@@ -15,6 +28,10 @@ const isValidEmail = (email) => {
   return regex.test(normalizedEmail)
 }
 
+const isValidPrioridade = (prioridade) => prioridadesValidas.includes(prioridade)
+
+const isValidStatus = (status) => statusValidos.includes(status)
+
 const sanitizeIdentifier = (id) => {
   if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(id))
     throw new Error(`Identificador inválido: ${id}`);
@@ -25,5 +42,7 @@ const sanitizeIdentifier = (id) => {
 module.exports = {
   parseID,
   isValidEmail,
+  isValidPrioridade,
+  isValidStatus,
   sanitizeIdentifier
 } 

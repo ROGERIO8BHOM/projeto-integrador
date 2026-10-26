@@ -4,7 +4,10 @@ const AppError = require("../errors/appError")
 
 class ChamadosController {
     static async getAll(req, res) {
-        const chamados = await ChamadosService.getAll()
+        const prioridade = req.query.prioridade
+        const status = req.query.status
+        const chamados = await ChamadosService.getAll({status, prioridade})
+
         res.json(chamados)
     }
 
