@@ -60,26 +60,6 @@ class ChamadosService {
         return chamado
     }
 
-    static async findByStatus(status) {
-        if (!isValidStatus(status))
-            throw new AppError(
-                `Status deve ser ${Object.values(STATUS).join(", ")}`,
-                400
-            )
-
-        return ChamadosModel.findByStatus(status)
-    }
-
-    static async findByPrioridade(prioridade) {
-        if (!isValidPrioridade(prioridade))
-            throw new AppError(
-                `Prioridade deve ser ${Object.values(PRIORIDADES).join(", ")}`,
-                400
-            )
-
-        return ChamadosModel.findByPrioridade(prioridade)
-    }
-
     static async add(dadosChamado) {
         const _dadosChamado = ChamadosService.#parseChamado(dadosChamado)
         const solicitanteId = parseID(_dadosChamado.solicitante_id)
