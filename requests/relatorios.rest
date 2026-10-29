@@ -1,0 +1,22 @@
+@baseUrl = http://localhost:3000
+
+### Sprint 5: quantidade de chamados por status — esperado: 200
+# Cada item deve conter o status e o total de chamados daquele grupo.
+GET {{baseUrl}}/relatorios/chamados-por-status
+Accept: application/json
+
+### Exemplo de resposta
+# [
+#   {
+#     "status": "ABERTO",
+#     "total": 1
+#   },
+#   {
+#     "status": "EM_ATENDIMENTO",
+#     "total": 1
+#   },
+#   {
+#     "status": "CONCLUIDO",
+#     "total": 2
+#   }
+# ]

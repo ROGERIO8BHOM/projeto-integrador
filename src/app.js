@@ -15,10 +15,12 @@ const categoriasRoutes = require("./routes/categorias.routes")
 const tecnicosRoutes = require("./routes/tecnicos.routes")
 const solicitantesRoutes = require("./routes/solicitantes.routes")
 const chamadosRoutes = require("./routes/chamados.routes")
+const relatoriosRoutes = require("./routes/relatorios.routes")
 app.use("/categorias", categoriasRoutes)
 app.use("/tecnicos", tecnicosRoutes)
 app.use("/solicitantes", solicitantesRoutes)
 app.use("/chamados", chamadosRoutes)
+app.use("/relatorios", relatoriosRoutes)
 //Error Handler
 app.use(errorHandler)
 

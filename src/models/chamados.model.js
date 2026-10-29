@@ -54,6 +54,13 @@ class ChamadosModel extends DataBaseModel {
             .getFirst()
     }
 
+    static async countByStatus() {
+        return this.select("status")
+            .count("*", "total")
+            .groupBy("status")
+            .get()
+    }
+
     static async findByFilters({ status, prioridade } = {}) {
         const query = this.#buildJoin(this.query())
 

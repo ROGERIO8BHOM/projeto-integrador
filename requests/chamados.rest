@@ -1,0 +1,166 @@
+@baseUrl = http://localhost:3000
+@chamadoId = 1
+@chamadoInexistente = 99999
+@solicitanteId = 1
+@categoriaId = 1
+@tecnicoId = 1
+
+### Sprint 3: listar chamados — esperado: 200 e um array JSON
+GET {{baseUrl}}/chamados
+Accept: application/json
+
+### Sprint 3: consultar chamado por ID — esperado: 200
+GET {{baseUrl}}/chamados/{{chamadoId}}
+Accept: application/json
+
+### Sprint 3: cadastrar chamado — esperado: 201 e status inicial ABERTO
+# Use IDs de solicitante e categoria existentes no banco.
+POST {{baseUrl}}/chamados
+Content-Type: application/json
+
+{
+  "titulo": "Computador não inicia",
+  "descricao": "O computador do setor financeiro não está ligando.",
+  "prioridade": "ALTA",
+  "solicitante_id": {{solicitanteId}},
+  "categoria_id": {{categoriaId}}
+}
+
+### Sprint 4: atribuir técnico e iniciar atendimento — esperado: 200
+# Use o ID retornado no cadastro em chamadoId e um técnico existente.
+PUT {{baseUrl}}/chamados/{{chamadoId}}
+Content-Type: application/json
+
+{
+  "tecnico_id": {{tecnicoId}},
+  "status": "EM_ATENDIMENTO"
+}
+
+### Sprint 4: concluir chamado com solução — esperado: 200
+PUT {{baseUrl}}/chamados/{{chamadoId}}
+Content-Type: application/json
+
+{
+  "status": "CONCLUIDO",
+  "solucao": "O cabo de alimentação foi substituído."
+}
+
+### Sprint 5: filtrar por status — esperado: 200 e somente chamados ABERTO
+GET {{baseUrl}}/chamados?status=ABERTO
+Accept: application/json
+
+### Sprint 5: filtrar por prioridade — esperado: 200 e somente chamados ALTA
+GET {{baseUrl}}/chamados?prioridade=ALTA
+Accept: application/json
+
+### Sprint 5: combinar os filtros — esperado: 200
+GET {{baseUrl}}/chamados?status=ABERTO&prioridade=ALTA
+Accept: application/json
+
+### Status inválido no filtro — esperado: 400
+GET {{baseUrl}}/chamados?status=INVALIDO
+Accept: application/json
+
+### Prioridade inválida no filtro — esperado: 400
+GET {{baseUrl}}/chamados?prioridade=INVALIDA
+Accept: application/json
+
+### Prioridade inválida no cadastro — esperado: 400
+POST {{baseUrl}}/chamados
+Content-Type: application/json
+
+{
+  "titulo": "Teste de prioridade",
+  "descricao": "Este chamado deve ser rejeitado.",
+  "prioridade": "URGENTE",
+  "solicitante_id": {{solicitanteId}},
+  "categoria_id": {{categoriaId}}
+}
+
+### Cadastro sem título — esperado: 400
+POST {{baseUrl}}/chamados
+Content-Type: application/json
+
+{
+  "descricao": "Chamado sem título.",
+  "prioridade": "MEDIA",
+  "solicitante_id": {{solicitanteId}},
+  "categoria_id": {{categoriaId}}
+}
+
+### Cadastro sem descrição — esperado: 400
+POST {{baseUrl}}/chamados
+Content-Type: application/json
+
+{
+  "titulo": "Chamado sem descrição",
+  "prioridade": "MEDIA",
+  "solicitante_id": {{solicitanteId}},
+  "categoria_id": {{categoriaId}}
+}
+
+### Solicitante inexistente — esperado: 404
+POST {{baseUrl}}/chamados
+Content-Type: application/json
+
+{
+  "titulo": "Solicitante inexistente",
+  "descricao": "Teste de relacionamento.",
+  "prioridade": "BAIXA",
+  "solicitante_id": {{chamadoInexistente}},
+  "categoria_id": {{categoriaId}}
+}
+
+### Categoria inexistente — esperado: 404
+POST {{baseUrl}}/chamados
+Content-Type: application/json
+
+{
+  "titulo": "Categoria inexistente",
+  "descricao": "Teste de relacionamento.",
+  "prioridade": "BAIXA",
+  "solicitante_id": {{solicitanteId}},
+  "categoria_id": {{chamadoInexistente}}
+}
+
+### Iniciar atendimento sem técnico — esperado: 400
+PUT {{baseUrl}}/chamados/{{chamadoId}}
+Content-Type: application/json
+
+{
+  "tecnico_id": null,
+  "status": "EM_ATENDIMENTO"
+}
+
+### Concluir sem solução — esperado: 400
+PUT {{baseUrl}}/chamados/{{chamadoId}}
+Content-Type: application/json
+
+{
+  "status": "CONCLUIDO",
+  "solucao": ""
+}
+
+### Técnico inexistente — esperado: 404
+PUT {{baseUrl}}/chamados/{{chamadoId}}
+Content-Type: application/json
+
+{
+  "tecnico_id": {{chamadoInexistente}}
+}
+
+### ID inválido na consulta — esperado: 400
+GET {{baseUrl}}/chamados/abc
+Accept: application/json
+
+### Chamado inexistente — esperado: 404
+GET {{baseUrl}}/chamados/{{chamadoInexistente}}
+Accept: application/json
+
+### Excluir chamado — esperado: 200
+# Execute por último e use um chamado que possa ser removido.
+DELETE {{baseUrl}}/chamados/{{chamadoId}}
+
+### Excluir chamado inexistente — esperado: 404
+DELETE {{baseUrl}}/chamados/{{chamadoInexistente}}
+
