@@ -32,13 +32,17 @@ Projeto desenvolvido para o Projeto Integrador do curso **Desenvolvedor Back-End
 
 ## Tecnologias
 
+- JavaScript
 - Node.js
-- Express
+- Express.js
 - MySQL
 - mysql2
 - dotenv
+- Git
+- GitHub
 - Helmet
 - CORS
+- REST Client, Insomnia, Postman ou Bruno
 
 ## Pré-requisitos
 
@@ -110,8 +114,8 @@ projeto-integrador/
 │   ├── routes/           # Rotas da API
 │   ├── services/         # Regras de negócio
 │   └── utils/            # Validadores reutilizáveis
-├── tests/                # Testes automatizados
 ├── .env.example          # Modelo de variáveis de ambiente
+├── package-lock.json     # Versões exatas das dependências instaladas
 ├── package.json          # Dependências e comandos do projeto
 └── server.js             # Inicialização do servidor
 ```
