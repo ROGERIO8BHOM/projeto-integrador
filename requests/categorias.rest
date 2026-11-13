@@ -1,5 +1,70 @@
 @baseUrl = http://localhost:3000
+@categoriaId = 1
+@categoriaInexistente = 99999
 
-### Sprint 1: listar categorias — esperado: 200 e um array JSON
+### 1. Listar categorias — esperado: 200 e um array JSON
 GET {{baseUrl}}/categorias
 Accept: application/json
+
+### 2. Cadastrar categoria — esperado: 201; copie o ID retornado para categoriaId
+POST {{baseUrl}}/categorias
+Content-Type: application/json
+
+{
+  "nome": "Categoria REST Teste",
+  "descricao": "Categoria criada para os testes manuais."
+}
+
+### 3. Atualizar categoria — esperado: 200
+PUT {{baseUrl}}/categorias/{{categoriaId}}
+Content-Type: application/json
+
+{
+  "nome": "Categoria REST Atualizada",
+  "descricao": "Descrição atualizada durante o teste."
+}
+
+### 4. Nome obrigatório — esperado: 400
+POST {{baseUrl}}/categorias
+Content-Type: application/json
+
+{
+  "descricao": "Esta categoria não possui nome."
+}
+
+### 5. Nome em branco — esperado: 400
+POST {{baseUrl}}/categorias
+Content-Type: application/json
+
+{
+  "nome": "   ",
+  "descricao": "Esta categoria deve ser rejeitada."
+}
+
+### 6. ID inválido na atualização — esperado: 400
+PUT {{baseUrl}}/categorias/abc
+Content-Type: application/json
+
+{
+  "nome": "Teste",
+  "descricao": "Teste"
+}
+
+### 7. Categoria inexistente na atualização — esperado: 404
+PUT {{baseUrl}}/categorias/{{categoriaInexistente}}
+Content-Type: application/json
+
+{
+  "nome": "Teste",
+  "descricao": "Teste"
+}
+
+### 8. ID inválido na exclusão — esperado: 400
+DELETE {{baseUrl}}/categorias/abc
+
+### 9. Excluir categoria inexistente — esperado: 404
+DELETE {{baseUrl}}/categorias/{{categoriaInexistente}}
+
+### 10. Excluir categoria de teste — esperado: 200
+# Execute por último. A categoria não pode estar vinculada a chamados.
+DELETE {{baseUrl}}/categorias/{{categoriaId}}

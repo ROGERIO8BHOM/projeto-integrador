@@ -1,11 +1,93 @@
 @baseUrl = http://localhost:3000
+@tecnicoId = 1
+@tecnicoInexistente = 99999
+@emailTeste = tecnico.rest.teste@example.com
 
-### Sprint 1: listar técnicos — esperado: 200 e um array JSON
+### 1. Listar técnicos — esperado: 200 e um array JSON
 GET {{baseUrl}}/tecnicos
 Accept: application/json
 
-### Filtro adicional: email inválido — esperado: 400
+### 2. Cadastrar técnico — esperado: 201; copie o ID retornado para tecnicoId
+POST {{baseUrl}}/tecnicos
+Content-Type: application/json
+
+{
+  "nome": "Técnico REST Teste",
+  "email": "{{emailTeste}}"
+}
+
+### 3. Consultar técnico por e-mail — esperado: 200
+GET {{baseUrl}}/tecnicos?email={{emailTeste}}
+Accept: application/json
+
+### 4. E-mail duplicado — esperado: 409
+POST {{baseUrl}}/tecnicos
+Content-Type: application/json
+
+{
+  "nome": "Técnico Duplicado",
+  "email": "{{emailTeste}}"
+}
+
+### 5. Atualizar técnico — esperado: 200
+PUT {{baseUrl}}/tecnicos/{{tecnicoId}}
+Content-Type: application/json
+
+{
+  "nome": "Técnico REST Atualizado",
+  "email": "{{emailTeste}}"
+}
+
+### 6. Nome obrigatório — esperado: 400
+POST {{baseUrl}}/tecnicos
+Content-Type: application/json
+
+{
+  "email": "sem.nome@example.com"
+}
+
+### 7. E-mail inválido — esperado: 400
+POST {{baseUrl}}/tecnicos
+Content-Type: application/json
+
+{
+  "nome": "Teste",
+  "email": "invalido"
+}
+
+### 8. E-mail inválido no filtro — esperado: 400
 GET {{baseUrl}}/tecnicos?email=invalido
 
-### Regressão: email repetido na query — esperado: 400
+### 9. E-mail repetido na query — esperado: 400
 GET {{baseUrl}}/tecnicos?email=a&email=b
+
+### 10. Técnico inexistente no filtro — esperado: 404
+GET {{baseUrl}}/tecnicos?email=ausente@example.com
+
+### 11. ID inválido na atualização — esperado: 400
+PUT {{baseUrl}}/tecnicos/abc
+Content-Type: application/json
+
+{
+  "nome": "Teste",
+  "email": "teste@example.com"
+}
+
+### 12. Técnico inexistente na atualização — esperado: 404
+PUT {{baseUrl}}/tecnicos/{{tecnicoInexistente}}
+Content-Type: application/json
+
+{
+  "nome": "Teste",
+  "email": "teste@example.com"
+}
+
+### 13. ID inválido na exclusão — esperado: 400
+DELETE {{baseUrl}}/tecnicos/abc
+
+### 14. Excluir técnico inexistente — esperado: 404
+DELETE {{baseUrl}}/tecnicos/{{tecnicoInexistente}}
+
+### 15. Excluir técnico de teste — esperado: 200
+# Execute por último. O técnico não pode estar vinculado a chamados.
+DELETE {{baseUrl}}/tecnicos/{{tecnicoId}}

@@ -6,6 +6,7 @@
 
 ### 1. Listar — esperado: 200 e array JSON
 GET {{baseUrl}}/solicitantes
+Accept: application/json
 
 ### 2. Cadastrar — esperado: 201; copie o ID retornado para idTeste
 POST {{baseUrl}}/solicitantes
